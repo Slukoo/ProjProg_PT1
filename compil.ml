@@ -1,34 +1,14 @@
 open Format
 open X86_64
 
+type nombre = Int of int | Float of float
+type binaire = Add | Sub | Mul | Div | Mod | Addf | Subf | Mulf 
+type unaire = Toint | Tofloat | Minus
 
-type exp = Int of int | Add of exp*exp ;;
-
-let asm_printint =
-inline "
-print_int:
-    movq %rdi, %rsi
-    movq $S_int, %rdi
-    movq $0, %rax
-    call printf
-    ret
-";;
-
-let sint =
-  label "S_int" ++ string "%d";;
-
-
-let asm_int n regi =
-           movq (imm n) (reg regi)
-       ;;
-
-
-let asm_sum c1 c2 regi=
-  c1 ++ c2 ++
-  addq (reg rbx) (reg rbp) ++
-  movq (reg rbp) (reg regi)
-
-  ;;
+type sexp = 
+  | Number of nombre
+  | Unary of unaire * sexp
+	| Binary of binaire * sexp * sexp
 
 
 let write name code =
@@ -38,26 +18,62 @@ let write name code =
   close_out file;;
 
 
+let binary_int op =
+	popq rdi ++
+	popq rsi ++
+	op (reg rdi) (reg rsi) ++
+	pushq (reg rsi);;
+
+let divide =
+	movq (imm 0) (reg rdx) ++
+	popq rax ++
+	popq rdi ++
+	idivq (reg rdi) ++
+	pushq (reg rax);;
+
+let modulo =
+	movq (imm 0) (reg rdx) ++
+	popq rax ++
+	popq rdi ++
+	idivq (reg rdi) ++
+	pushq (reg rdx);;
+
+
+let store_int n =
+	pushq (imm n);;
+
 
 
 
 let compile expr name =
-  let rec aux expr regi =
+  let rec aux expr =
     match expr with
-    | Int n -> asm_int n regi
-    | Add (e,e') -> asm_sum (aux e rbx) (aux e' rbp) regi
+    | Number Int n -> store_int n
+    | Binary (Add,exp1,exp2) -> aux exp1 ++ aux exp2 ++ binary_int addq
+    | Binary (Sub,exp1,exp2) -> aux exp1 ++ aux exp2 ++ binary_int subq
+    | Binary (Mul,exp1,exp2) -> aux exp1 ++ aux exp2 ++ binary_int imulq
+    | Binary (Div,exp1,exp2) -> aux exp1 ++ aux exp2 ++ divide
+    | Binary (Mod,exp1,exp2) -> aux exp1 ++ aux exp2 ++ modulo
+    | _ -> failwith "Cas non traité"
   in
   let code = {text =
             globl "main" ++ label "main" ++
-            (aux expr rdi) ++
+            (aux expr) ++
+	          popq rdi ++
             call "print_int" ++
             ret ++
-            asm_printint;
+            inline "
+print_int:
+    movq %rdi, %rsi
+    movq $S_int, %rdi
+    movq $0, %rax
+    call printf
+    ret
+";
           data =
-            sint;} in
+            label "S_int" ++ string "%d";} in
   write name code;;
 
 
-compile (Int 23) "test_int.s";;
-compile (Add (Int 1, Int 2)) "test_sum.s";;
-compile (Add (Int 1, Add (Int 2, Int 3))) "test_sum2.s";;
+compile (Number (Int 23)) "test_int.s";;
+compile (Binary (Add, Number (Int 1), Number (Int 2))) "test_sum.s";;
