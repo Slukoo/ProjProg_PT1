@@ -6,7 +6,7 @@
 
 open Format
 
-type size = [`B | `W | `L | `Q]
+type size = [`B | `W | `L | `Q | `F]
 
 type 'size register =  string
 
@@ -317,3 +317,21 @@ let print_in_file ~file p =
   let fmt = formatter_of_out_channel c in
   print_program fmt p;
   close_out c
+
+
+  (*addendum: opérations et registres pour flottants*)
+let xmm0 = "%xmm0"
+let xmm1 = "%xmm1"
+
+let pushf a b = ins "movsd %a, -8(%a) \n subq $8, %a" a () b () b()
+let popf a b = ins "movsd (%a), %a \n  addq $8, %a" b () a () b ()
+
+let cvtsi2sdq a b = ins "cvtsi2sdq %a, %a" a () b ()
+let cvttsd2si a b = ins "cvttsd2si %a, %a" a () b ()
+
+let movsd a b = ins "movsd %a, %a" a () b ()
+let movfl label a = inline ("movsd " ^ label) ++ ins", %a" a ()
+
+let addsd a b = ins "addsd %a, %a" a () b ()
+let subsd a b = ins "subsd %a, %a" a () b ()
+let mulsd a b = ins "mulsd %a, %a" a () b ()

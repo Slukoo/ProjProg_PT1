@@ -48,7 +48,7 @@ val print_in_file: file:string -> program -> unit
 
 (** {1 Registres } *)
 
-type size = [`B | `W | `L | `Q]
+type size = [`B | `W | `L | `Q | `F]
 
 type 'size register
   (** type abstrait des registres *)
@@ -360,3 +360,20 @@ val address: label list -> data
 val space: int -> data
   (** [space n] alloue [n] octets (valant 0) dans le segment de données *)
 
+
+
+val xmm0 : [`F] register
+val xmm1 : [`F] register
+  
+val pushf : [`F] operand -> [`Q] operand -> text
+val popf : [`F] operand -> [`Q] operand -> text
+  
+val cvtsi2sdq : [`Q] operand -> [`F] operand -> text
+val cvttsd2si : [`F] operand -> [`Q] operand -> text
+  
+val movsd : [`F] operand -> [`F] operand -> text
+val movfl : string -> [`F] operand -> text
+  
+val addsd : [`F] operand -> [`F] operand -> text
+val subsd : [`F] operand -> [`F] operand -> text
+val mulsd : [`F] operand -> [`F] operand -> text

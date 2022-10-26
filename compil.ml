@@ -48,73 +48,59 @@ let binary_int op =
 	popq rdi ++
 	popq rsi ++
 	op (reg rdi) (reg rsi) ++
-	pushq (reg rsi);;
+	pushq (reg rsi)
 
 let binary_float op =
-inline ("
-  movsd (%rsp), %xmm0
-  addq $8, %rsp
-  movsd (%rsp), %xmm1
-  addq $8, %rsp
-  " ^ op ^ " %xmm1, %xmm0
-  movsd %xmm0,-8(%rsp)
-  subq $8, %rsp
-");;
+  popf (reg xmm0) (reg rsp)++
+  popf (reg xmm1) (reg rsp)++
+  op (reg xmm1) (reg xmm0) ++
+  pushf (reg xmm0) (reg rsp)
 
 let divide =
 	movq (imm 0) (reg rdx) ++
 	popq rdi ++
 	popq rax ++
 	idivq (reg rdi) ++
-	pushq (reg rax);;
+	pushq (reg rax)
 
 let modulo =
 	movq (imm 0) (reg rdx) ++
 	popq rdi ++
 	popq rax ++
 	idivq (reg rdi) ++
-	pushq (reg rdx);;
+	pushq (reg rdx)
 
 
 let minus_int =
   popq rdi ++
   movq (imm 0) (reg rsi) ++
   subq (reg rdi) (reg rsi) ++
-  pushq (reg rsi);;
+  pushq (reg rsi)
 
 let minus_float =
-inline "
-    movsd (%rsp), %xmm0
-    movsd .ZERO(%rip), %xmm1
-    subsd %xmm0, %xmm1
-    movsd %xmm1, (%rsp)
-"
+    popf (reg xmm0) (reg rsp)++
+    movfl ".ZERO(%rip)" (reg xmm1) ++
+    subsd (reg xmm0) (reg xmm1) ++
+    pushf (reg xmm1) (reg rsp)
+
 
 let toint =
-inline"
-    movsd (%rsp), %xmm0
-    addq $8, %rsp
-    cvttsd2si %xmm0, %rdi
-    pushq %rdi
-"
+    popf (reg xmm0) (reg rsp)++
+    cvttsd2si (reg xmm0) (reg rdi) ++
+    pushq (reg rdi)
 
 let tofloat =
-  inline"
-  popq rdi
-  cvttsd2si %rdi, %xmm0
-  movsd %xmm0, -8(%rsp)
-  subq $8, %rsp
-"
+    popq rdi ++
+    cvtsi2sdq (reg rdi) (reg xmm0) ++
+    pushf (reg xmm0) (reg rsp)
 
 let store_int n =
 	pushq (imm n);;
 
 
-let store_float x i = inline ("
-  movsd .FL" ^ (string_of_int i) ^ "(%rip), %xmm0
-	movsd %xmm0, -8(%rsp)
-	subq $8, %rsp
-");;
+let store_float x i = 
+  movfl (".FL" ^ (string_of_int i) ^ "(%rip)") (reg xmm0) ++
+  pushf (reg xmm0) (reg rsp)
 
 let rec testype expr =
   match expr with
@@ -150,10 +136,9 @@ let compile expr name =
      | Binary (Mul, exp1, exp2) -> aux exp1 ++ aux exp2 ++ binary_int imulq
      | Binary (Div, exp1, exp2) -> aux exp1 ++ aux exp2 ++ divide
      | Binary (Mod, exp1, exp2) -> aux exp1 ++ aux exp2 ++ modulo
-     | Binary (Addf, exp1, exp2) -> aux exp1 ++ aux exp2 ++ binary_float "addsd"
-     | Binary (Subf, exp1, exp2) -> aux exp1 ++ aux exp2 ++ binary_float "subsd"
-     | Binary (Mulf, exp1, exp2) -> aux exp1 ++ aux exp2 ++ binary_float "mulsd"
-     | _ -> failwith "Cas non traité"
+     | Binary (Addf, exp1, exp2) -> aux exp1 ++ aux exp2 ++ binary_float addsd
+     | Binary (Subf, exp1, exp2) -> aux exp1 ++ aux exp2 ++ binary_float subsd
+     | Binary (Mulf, exp1, exp2) -> aux exp1 ++ aux exp2 ++ binary_float mulsd
     in
   let instructions = aux expr in
   let code = {text =
