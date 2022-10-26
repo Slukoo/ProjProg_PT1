@@ -1,9 +1,14 @@
-all: asyntax.cmo parser.cmo lexer.cmo tests.cmo
-	ocamlc asyntax.cmo parser.cmo lexer.cmo tests.cmo -o tests
+all: asyntax.cmo parser.cmo lexer.cmo compil.cmo tests.cmo 
+	ocamlc asyntax.cmo parser.cmo lexer.cmo x86_64.cmo compil.cmo tests.cmo -o tests
 	
+out:
+	gcc -no-pie out.s -o out
+
+delout:
+	rm -f out
 
 clean:
-	rm -f *.s  *.out *.cmo *.cmi parser.mli parser.ml lexer.ml
+	rm -f *.s  *.out *.cmo *.cmi parser.mli parser.ml lexer.ml tests out.s out
 
 
 tests.cmo:
@@ -31,12 +36,8 @@ asyntax.cmi:
 	ocamlc -c asyntax.mli
 
 
-
-
-
-
-compil:  x86_64.cmo
-	ocamlc x86_64.cmo compil.ml -o compil.out
+compil.cmo:  x86_64.cmo asyntax.cmo
+	ocamlc -c compil.ml 
 
 
 x86_64.cmo: x86_64.cmi

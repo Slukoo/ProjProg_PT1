@@ -17,8 +17,8 @@ rule token = parse
 | '*'      { MUL }
 | '/'      { DIV }
 | '%'      { MOD }
-| 'i'	   { TOINT }
-| 'f'	   { TOFLOAT }
+| "int"	   { TOINT }
+| "float"	   { TOFLOAT }
 | ['0'-'9']+ '.'['0'-'9']+ as flo { FLOAT (float_of_string flo) } 
 | ['0'-'9']+ as ent { INT (int_of_string ent) } 
-| eof { raise Eof } 
+| eof { EOL }
