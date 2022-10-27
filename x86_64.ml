@@ -323,8 +323,8 @@ let print_in_file ~file p =
 let xmm0 = "%xmm0"
 let xmm1 = "%xmm1"
 
-let pushf a b = ins "movsd %a, -8(%a) \n subq $8, %a" a () b () b()
-let popf a b = ins "movsd (%a), %a \n  addq $8, %a" b () a () b ()
+let pushf a = ins "movsd %a, -8(%a) \n subq $8, %a" a () (reg rsp) () (reg rsp) ()
+let popf a = ins "movsd (%a), %a \n  addq $8, %a" (reg rsp) () a () (reg rsp) ()
 
 let cvtsi2sdq a b = ins "cvtsi2sdq %a, %a" a () b ()
 let cvttsd2si a b = ins "cvttsd2si %a, %a" a () b ()

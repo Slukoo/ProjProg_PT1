@@ -365,8 +365,8 @@ val space: int -> data
 val xmm0 : [`F] register
 val xmm1 : [`F] register
   
-val pushf : [`F] operand -> [`Q] operand -> text
-val popf : [`F] operand -> [`Q] operand -> text
+val pushf : [`F] operand -> text
+val popf : [`F] operand -> text
   
 val cvtsi2sdq : [`Q] operand -> [`F] operand -> text
 val cvttsd2si : [`F] operand -> [`Q] operand -> text
