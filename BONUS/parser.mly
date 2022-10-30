@@ -1,4 +1,3 @@
- /* File parser.mly */
         %token <int> INT 
 		%token <float> FLOAT
         %token ADDF SUBF MULF ADD SUB MUL DIV MOD POW FACT
@@ -10,7 +9,7 @@
         %nonassoc MINUS PLUS TOINT TOFLOAT FACT
 		%start parse
 
-		%type <Asyntax.sexp> parse
+		%type <Asyntax.ast> parse
 		%%
 
 parse:

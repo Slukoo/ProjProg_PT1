@@ -36,8 +36,11 @@ asyntax.cmi:
 	ocamlc -c asyntax.mli
 
 
-compil.cmo:  x86_64.cmo asyntax.cmo
+compil.cmo:  x86_64.cmo asyntax.cmo compil.cmi
 	ocamlc -c compil.ml 
+
+compil.cmi:
+	ocamlc -c compil.mli
 
 
 x86_64.cmo: x86_64.cmi

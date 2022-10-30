@@ -118,7 +118,7 @@ let store_int n =
   
   
 let store_float x i = 
-    movfl (".FL" ^ (string_of_int i) ^ "(%rip)") (reg xmm0) ++
+    movfl (".FL" ^ (string_of_int i)) (reg xmm0) ++
     pushf (reg xmm0)
 
 

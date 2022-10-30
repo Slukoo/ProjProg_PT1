@@ -3,10 +3,9 @@ type binaire = Add | Sub | Mul | Div | Mod | Addf | Subf | Mulf
 type unaire = Toint | Tofloat | Minus
 
 
-type sexp = 
+type ast = 
   | Number of nombre
-  | Unary of unaire * sexp
-	| Binary of binaire * sexp * sexp
+  | Unary of unaire * ast
+	| Binary of binaire * ast * ast
 	
 	
-val affiche: sexp -> unit

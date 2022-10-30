@@ -1,4 +1,4 @@
-        %token <int> INT 
+	    %token <int> INT 
 		%token <float> FLOAT
         %token ADDF SUBF MULF ADD SUB MUL DIV MOD
         %token LBRACE RBRACE
@@ -9,7 +9,7 @@
         %nonassoc MINUS PLUS TOINT TOFLOAT
 		%start parse
 
-		%type <Asyntax.sexp> parse
+		%type <Asyntax.ast> parse
 		%%
 
 parse:

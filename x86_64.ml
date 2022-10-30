@@ -330,7 +330,7 @@ let cvtsi2sdq a b = ins "cvtsi2sdq %a, %a" a () b ()
 let cvttsd2si a b = ins "cvttsd2si %a, %a" a () b ()
 
 let movsd a b = ins "movsd %a, %a" a () b ()
-let movfl label a = inline ("movsd " ^ label) ++ ins", %a" a ()
+let movfl label a = inline ("movsd " ^ label ^ "(%rip)") ++ ins", %a" a ()
 
 let addsd a b = ins "addsd %a, %a" a () b ()
 let subsd a b = ins "subsd %a, %a" a () b ()

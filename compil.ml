@@ -17,7 +17,7 @@ let rec testype expr =
     match expr with
       | Number Int _ -> "int"
       | Number Float _ -> "float"
-      | Unary (Toint, exp) -> if testype exp = "int" then failwith "mal typé" else "int"
+      | Unary (Toint, exp) -> if testype exp = "int" then failwith "mal typé" else "int" (*on accepte seulement la converison d'un entier en flottant et inversement*)
       | Unary (Tofloat, exp) -> if testype exp = "float" then failwith "mal typé" else "float"
       | Unary (Minus, exp) -> testype exp
       | Binary (Add, exp1, exp2) | Binary (Sub, exp1, exp2) | Binary (Mul, exp1, exp2) | Binary (Div, exp1, exp2) | Binary (Mod, exp1, exp2) ->
@@ -65,18 +65,18 @@ let main instructions typ =
 (*string nécéssaire à l'impression, qu'on choisit selon si notre expression est un entier ou un flottant*)
 let printstr typ =
   if typ = "float" then label "S_float" ++ string "%f"
-  else label "S_int" ++ string "%d";;
+  else label "S_int" ++ string "%d"
 
 
 (*Fonctions d'opérations en assembleur*)
 
 
 let store_int n =
-    pushq (imm n);;
+    pushq (imm n)
   
   
 let store_float x i = 
-    movfl (".FL" ^ (string_of_int i) ^ "(%rip)") (reg xmm0) ++
+    movfl (".FL" ^ (string_of_int i)) (reg xmm0) ++
     pushf (reg xmm0)
 
 
@@ -96,7 +96,7 @@ let binary_float op =
 let divide =
 	popq rdi ++
 	popq rax ++
-  inline "cqo\n" ++
+  cqto ++
 	idivq (reg rdi) ++
 	pushq (reg rax)
 
@@ -108,7 +108,7 @@ let modulo =
 	pushq (reg rdx)
 
 
-let minus_int =
+let minus_int =   (*on traite -x comme (0-x)*)
   popq rdi ++
   movq (imm 0) (reg rsi) ++
   subq (reg rdi) (reg rsi) ++
