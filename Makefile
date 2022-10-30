@@ -1,4 +1,14 @@
-all: asyntax.cmo parser.cmo lexer.cmo compil.cmo aritha.cmo 
+all: rapport.pdf aritha
+
+
+clean:
+	rm -f *.s  *.out *.cmo *.cmi *.log *.pdf *.aux parser.mli parser.ml lexer.ml aritha out.s out 
+
+rapport.pdf:
+	pdflatex rapport.tex
+
+
+aritha: asyntax.cmo parser.cmo lexer.cmo compil.cmo aritha.cmo 
 	ocamlc asyntax.cmo parser.cmo lexer.cmo x86_64.cmo compil.cmo aritha.cmo -o aritha
 	
 out:
@@ -7,8 +17,6 @@ out:
 delout:
 	rm -f out
 
-clean:
-	rm -f *.s  *.out *.cmo *.cmi parser.mli parser.ml lexer.ml aritha out.s out
 
 
 aritha.cmo:
@@ -48,3 +56,6 @@ x86_64.cmo: x86_64.cmi
 
 x86_64.cmi:
 	ocamlc -c x86_64.mli
+
+
+
